@@ -16,13 +16,14 @@ public class MovieDetailActivity extends ActionBarActivity {
         setContentView(R.layout.activity_movie_detail);
 
         Bundle extra = getIntent().getExtras();
-        if(extra!=null){
-            String original_title = extra.getString("original_title");
-            String poster_path = extra.getString("poster_path");
-            String overview = extra.getString("overview");
-            String vote_average = extra.getString("vote_average");
-            String release_date = extra.getString("release_date");
-            String back_poster = extra.getString("backdrop_path");
+        Movie m = extra.getParcelable("movieData");
+        if(m!=null){
+            String original_title = m.getmOTitle();
+            String poster_path = m.getmPoster_path();
+            String overview = m.getmOverview();
+            String vote_average = m.getmVoteAvg();
+            String release_date = m.getmReleaseDate();
+            String back_poster = m.getmBackdrop_path();
 
             ImageView PosterImage = (ImageView) findViewById(R.id.title_poster);
             ImageView BackPosterImage = (ImageView) findViewById(R.id.background_poster);
@@ -38,8 +39,10 @@ public class MovieDetailActivity extends ActionBarActivity {
             VoteAvgText.setText("    Scores: "+vote_average);
             ReleaseDateText.setText("    Release Date: "+ release_date);
 
-            Picasso.with(this).load(poster_path).into(PosterImage);
-            Picasso.with(this).load(back_poster).into(BackPosterImage);
+            Picasso.with(this).load(poster_path).error(R.drawable.movieicon).into(PosterImage);
+            if(back_poster!=null){
+                Picasso.with(this).load(back_poster).into(BackPosterImage);
+            }
         }
     }
 

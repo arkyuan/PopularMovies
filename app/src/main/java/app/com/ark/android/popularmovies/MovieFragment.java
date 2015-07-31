@@ -2,8 +2,11 @@ package app.com.ark.android.popularmovies;
 
 
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,12 +35,19 @@ import java.util.ArrayList;
  * A simple {@link Fragment} subclass.
  */
 public class MovieFragment extends Fragment {
-
     private MovieAdapterArrary mMovieAdapter;
+    private Movie[] mListMovies=null;
+    String mSort = "null";
     public MovieFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArray("movies",mListMovies);
+        outState.putString("sort",mSort);
+        super.onSaveInstanceState(outState);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -52,6 +63,8 @@ public class MovieFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movie, container, false);
         GridView movie_entry = (GridView) rootView.findViewById(R.id.gridview_movie);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mSort = sharedPref.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_default));
 
         mMovieAdapter = new MovieAdapterArrary(
                 getActivity(),
@@ -61,18 +74,26 @@ public class MovieFragment extends Fragment {
         );
 
         movie_entry.setAdapter(mMovieAdapter);
+
+        if(savedInstanceState!=null){
+            mListMovies =(Movie[]) savedInstanceState.getParcelableArray("movies");
+            if(mSort.equals(savedInstanceState.getString("sort"))&&mListMovies!=null){
+                mMovieAdapter.addAll(mListMovies);
+            }else{
+                updateMovie(mSort);
+            }
+
+        }else{
+            updateMovie(mSort);
+        }
+
         movie_entry.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Movie movie = mMovieAdapter.getItem(position);
-                Intent intent = new Intent(getActivity(), MovieDetailActivity.class)
-                        .putExtra("original_title",movie.getmOTitle())
-                        .putExtra("poster_path",movie.getmPoster_path())
-                        .putExtra("overview",movie.getmOverview())
-                        .putExtra("vote_average",movie.getmVoteAvg())
-                        .putExtra("release_date",movie.getmReleaseDate())
-                        .putExtra("backdrop_path",movie.getmBackdrop_path());
+                Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+                intent.putExtra("movieData",movie);
                 startActivity(intent);
             }
         });
@@ -134,6 +155,9 @@ public class MovieFragment extends Fragment {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
 
+            //Read the input stream into a String
+            InputStream inputStream =null;
+
             //raw JSON response as a string from movie API
             String movieJsonRawString = null;
 
@@ -154,12 +178,19 @@ public class MovieFragment extends Fragment {
                 //Log.v(LOG_TAG, "Built URL " + builtUri.toString());
 
                 //create the request to Movie API and open the connection
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
+                if(checkInternetConnection()){
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("GET");
+                    urlConnection.connect();
+                    //Read the input stream into a String
+                    inputStream = urlConnection.getInputStream();
+                }
+                else {
+                    TextView msg = (TextView) getActivity().findViewById(R.id.maintext);
+                    msg.setText("Loading...Check your internet");
+                }
 
-                //Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
+
                 StringBuffer buffer = new StringBuffer();
                 if (inputStream == null) {
                     //Nothing
@@ -197,7 +228,9 @@ public class MovieFragment extends Fragment {
                 }
 
                 try{
-                    return getMovieDataFromJson(movieJsonRawString);
+                    if(movieJsonRawString!=null){
+                        return getMovieDataFromJson(movieJsonRawString);
+                    }
                 } catch (JSONException e){
                     e.printStackTrace();
                 }
@@ -212,22 +245,35 @@ public class MovieFragment extends Fragment {
         @Override
         protected void onPostExecute(Movie[] result) {
             if(result!=null){
+                mListMovies=result;
                 mMovieAdapter.clear();
-                mMovieAdapter.addAll(result);
+                mMovieAdapter.addAll(mListMovies);
             }
         }
 
     }
 
     @Override
-    public void onStart(){
-        super.onStart();
-        updateMovie();
+    public void onResume() {
+        super.onResume();
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        if(!(mSort.equals(sharedPref.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_default))))){
+            mSort = sharedPref.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_default));
+            mMovieAdapter.clear();
+            updateMovie(mSort);
+        }
     }
 
-    private void updateMovie() {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String sort = sharedPref.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_default));
+    private Boolean checkInternetConnection(){
+        ConnectivityManager cm =
+                (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
+
+    private void updateMovie(String sort) {
+
         new FetchMovieTask().execute(sort);
     }
 }

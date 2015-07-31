@@ -37,7 +37,7 @@ public class MovieAdapterArrary extends ArrayAdapter<Movie> {
         }
         String url = getItem(position).getmPoster_path();
 
-        Picasso.with(mContext).load(url).into(view);
+        Picasso.with(mContext).load(url).placeholder(R.drawable.movieicon).error(R.drawable.movieicon).into(view);
         return view;
     }
 
