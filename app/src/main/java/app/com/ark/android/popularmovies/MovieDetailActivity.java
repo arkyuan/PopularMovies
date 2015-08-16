@@ -1,11 +1,10 @@
 package app.com.ark.android.popularmovies;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
+import android.view.Menu;
+import android.view.MenuItem;
 
 
 public class MovieDetailActivity extends ActionBarActivity {
@@ -15,38 +14,21 @@ public class MovieDetailActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
 
-        Bundle extra = getIntent().getExtras();
-        Movie m = extra.getParcelable("movieData");
-        if(m!=null){
-            String original_title = m.getmOTitle();
-            String poster_path = m.getmPoster_path();
-            String overview = m.getmOverview();
-            String vote_average = m.getmVoteAvg();
-            String release_date = m.getmReleaseDate();
-            String back_poster = m.getmBackdrop_path();
+        if (savedInstanceState == null) {
+            //create the detail fragment and add it to the activity
+            //using a fragment transaction.
 
-            ImageView PosterImage = (ImageView) findViewById(R.id.title_poster);
-            ImageView BackPosterImage = (ImageView) findViewById(R.id.background_poster);
-            TextView OriginalTitleText = (TextView) findViewById(R.id.orig_title);
-            TextView OverViewText = (TextView) findViewById(R.id.summary);
-            TextView VoteAvgText = (TextView) findViewById(R.id.scores);
-            TextView ReleaseDateText = (TextView) findViewById(R.id.rel_date);
+            Bundle argments = new Bundle();
+            argments.putParcelable(MovieDetailFragment.DETAIL_URI, getIntent().getData());
 
-
-
-            OriginalTitleText.setText(original_title);
-            OverViewText.setText("\n"+"Summary: "+"\n"+overview);
-            VoteAvgText.setText("    Scores: "+vote_average);
-            ReleaseDateText.setText("    Release Date: "+ release_date);
-
-            Picasso.with(this).load(poster_path).error(R.drawable.movieicon).into(PosterImage);
-            if(back_poster!=null){
-                Picasso.with(this).load(back_poster).into(BackPosterImage);
-            }
+            MovieDetailFragment fragment = new MovieDetailFragment();
+            fragment.setArguments(argments);
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.movie_detail_container, fragment)
+                    .commit();
         }
     }
 
-/*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -63,10 +45,11 @@ public class MovieDetailActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
-    */
 }

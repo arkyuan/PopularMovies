@@ -3,9 +3,11 @@
     <string-array name="Sort">
         <item>popularity descend</item>
         <item>Highest Rate</item>
+        <item>Favorite Movies</item>
     </string-array>
     <string-array name="SortValues">
-        <item>popularity.desc</item>
-        <item>vote_average.desc</item>
+        <item>popularity</item>
+        <item>VoteAvg</item>
+        <item>Favorite</item>
     </string-array>
 </resources>

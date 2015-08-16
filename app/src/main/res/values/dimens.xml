@@ -5,5 +5,5 @@
     <dimen name="grid_column_width">150dp</dimen>
     <dimen name="horizontal_spacing">0dp</dimen>
     <dimen name="vertical_spacing">0dp</dimen>
-    <dimen name="padding_top">20dp</dimen>
+    <dimen name="padding_top">10dp</dimen>
 </resources>
