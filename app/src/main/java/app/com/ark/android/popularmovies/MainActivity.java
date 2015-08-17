@@ -13,6 +13,7 @@ public class MainActivity extends ActionBarActivity implements MovieFragment.Cal
     private String mSort;
     private static String DETAILFRAGMENT_TAG = "DFTAG";
     private boolean mTwoPane;
+    private Uri mUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +51,7 @@ public class MainActivity extends ActionBarActivity implements MovieFragment.Cal
                 ff.restartLoader();
             }
             MovieDetailFragment df = (MovieDetailFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
-            if ( null != df ) {
+            if ( null != df&&mUri!=null) {
                 df.onSortChanged();
             }
             mSort=sort;
@@ -84,6 +85,7 @@ public class MainActivity extends ActionBarActivity implements MovieFragment.Cal
     @Override
     public void onItemSelected(Uri movieUri) {
 
+        mUri = movieUri;
         if(mTwoPane){
             Bundle args = new Bundle();
             args.putParcelable(MovieDetailFragment.DETAIL_URI, movieUri);
