@@ -281,9 +281,10 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     }
 
     void onSortChanged( ) {
-        //mUri = null;
-        getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
-        getLoaderManager().restartLoader(REVIEW_LOADER, null, this);
+        if (mUri != null) {
+            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+            getLoaderManager().restartLoader(REVIEW_LOADER, null, this);
+        }
     }
 
     public String getBtnText(int isFavorite){
