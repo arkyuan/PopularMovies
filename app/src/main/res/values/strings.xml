@@ -15,4 +15,13 @@
     <string name="Summary">summary not available</string>
     <string name="Unknown">Unknown</string>
     <string name="review">Reviews</string>
+    <string name="summary">Summary: </string>
+    <string name="rate">    Rate: </string>
+    <string name="release_date">    Release Date: </string>
+    <string name="trailer1link"> Trailer 1 Link </string>
+    <string name="trailer">Trailer </string>
+    <string name="author"> Author: </string>
+    <string name="reviews"> Reviews: </string>
+    <string name="favorite">Make it Favorite</string>
+    <string name="undo_favorite">Undo Favorite</string>
 </resources>

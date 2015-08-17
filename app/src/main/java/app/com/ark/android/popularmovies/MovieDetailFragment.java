@@ -53,7 +53,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     private TextView ReleaseDateText;
     private Button BtnFavorite;
     private ArrayAdapter<String> mTrailerAdapter;
-    private ArrayAdapter<String> mReviewAdapter;
 
     public MovieDetailFragment(){
         setHasOptionsMenu(true);
@@ -98,13 +97,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                 getActivity(),
                 R.layout.list_item_trailer,
                 R.id.trailer_textview,
-                new ArrayList<String>()
-        );
-
-        mReviewAdapter = new ArrayAdapter<String>(
-                getActivity(),
-                R.layout.list_item_review,
-                R.id.author_textview,
                 new ArrayList<String>()
         );
         return rootView;
@@ -183,16 +175,16 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
                     //Overview
                     String overview = data.getString(Constant.COL_MOVIE_OVERVIEW);
-                    OverViewText.setText("\n" + "Summary: " + "\n" + overview);
+                    OverViewText.setText("\n" + getString(R.string.summary) + "\n" + overview);
 
                     //Vote Average
                     double voteavg = data.getDouble(Constant.COL_MOVIE_VOTEAVG);
-                    VoteAvgText.setText("    Rate: " + String.valueOf(voteavg));
+                    VoteAvgText.setText(getString(R.string.rate) + String.valueOf(voteavg));
 
 
                     //Release Date
                     String releasedate = data.getString(Constant.COL_MOVIE_RELEASEDATE);
-                    ReleaseDateText.setText("    Release Date: " + releasedate);
+                    ReleaseDateText.setText(getString(R.string.release_date) + releasedate);
 
                     //Favorite text
                     mIsFavorite = data.getInt(Constant.COL_MOVIE_FAVORITE);
@@ -200,10 +192,14 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
                     //trailers
                     String trailerkeys = data.getString(Constant.COL_MOVIE_VIDEOKEYS);
-                    String[] trailers = trailerkeys.split(" ");
-
-                    mTrailerAdapter.clear();
-                    mTrailerAdapter.addAll(trailers);
+                    if(trailerkeys!=null) {
+                        String[] trailers = trailerkeys.split(" ");
+                        mTrailerAdapter.clear();
+                        mTrailerAdapter.addAll(trailers);
+                    }
+                    else {
+                        mTrailerAdapter.clear();
+                    }
                     //Pointing to the LinearLayout
                     LinearLayout trailerContainer = (LinearLayout) getActivity().findViewById(R.id.trailer_container);
                     trailerContainer.removeAllViews();
@@ -216,12 +212,12 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                         {
                             String trailer = mTrailerAdapter.getItem(0);
                             String url = "https://www.youtube.com/watch?v=" + trailer;
-                            mTrailerLink = String.format("%s - %s: %s", otitle," Trailer 1 Link ", url);
+                            mTrailerLink = String.format("%s - %s: %s", otitle,getString(R.string.trailer1link), url);
                         }
 
                         View item = mTrailerAdapter.getView(i, null, null);
                         TextView title = (TextView) item.findViewById(R.id.trailer_textview);
-                        title.setText("Trailer " + (i + 1));
+                        title.setText(getString(R.string.trailer) + (i + 1));
                         trailerContainer.addView(item);
                         final int position = i;
                         item.setOnClickListener(new View.OnClickListener() {
@@ -256,12 +252,12 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                     // Create TextView Author
                     TextView authorTextView = new TextView(getActivity());
                     authorTextView.setTextColor(getResources().getColor(R.color.white));
-                    authorTextView.setText(" Author: "+author);
+                    authorTextView.setText(getString(R.string.author)+author);
                     reviewContainer.addView(authorTextView);
 
                     // Create TextView Content
                     TextView contentTextView = new TextView(getActivity());
-                    contentTextView.setText(" Reviews: " + content);
+                    contentTextView.setText(getString(R.string.reviews) + content);
                     contentTextView.setTextColor(getResources().getColor(R.color.orange));
                     contentTextView.setPadding(0, 30, 0, 30);
                     reviewContainer.addView(contentTextView);
@@ -292,10 +288,10 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
     public String getBtnText(int isFavorite){
         if(isFavorite==1){
-            return "Undo Favorite";
+            return getString(R.string.undo_favorite);
 
         }else{
-            return "Make it Favorite";
+            return getString(R.string.favorite);
         }
     }
 
